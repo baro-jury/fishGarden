@@ -2,7 +2,10 @@ using DG.Tweening;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.UI;
 
 public class PondController : MonoBehaviour
@@ -33,13 +36,33 @@ public class PondController : MonoBehaviour
     void Awake()
     {
         _MakeInstance();
-        PondState = JsonConvert.DeserializeObject<PondState>((Resources.Load("cageStateInPond") as TextAsset).text);
+        _LoadPondState();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+
         _GenerateCages();
+    }
+    private void Load()
+    {
+        string arrayString = PlayerPrefs.GetString("Array2D");
+        int[,] loadedArray = JsonUtility.FromJson<int[,]>(arrayString);
+        // Do something with the loaded array...
+    }
+    void _LoadPondState()
+    {
+        //string json = (Resources.Load("cageStateInPond") as TextAsset).text;
+        string json = PlayerPrefsManager.instance._GetCageState();
+        if (json == null || json == "")
+        {
+            PondState = new PondState();
+        }
+        else
+        {
+            PondState = JsonConvert.DeserializeObject<PondState>(json);
+        }
     }
 
     void _GenerateCages()
@@ -56,9 +79,9 @@ public class PondController : MonoBehaviour
         int pondWidth = _column * cageWidth;
         int pondHeight = _row * cageHeight;
 
-        for (int c = 0; c < _column; c++)
+        for (int r = 0; r < _row; r++)
         {
-            for (int r = 0; r < _row; r++)
+            for (int c = 0; c < _column; c++)
             {
                 Vector3 tilePos = _ConvertMatrixIndexToLocalPos(c, r, pondWidth, pondHeight, cageWidth, cageHeight);
                 var objCage = Instantiate(Cage, tilePos / 40, Quaternion.identity, gameObject.transform);
@@ -66,12 +89,15 @@ public class PondController : MonoBehaviour
                 objCage.ColumnIndex = c;
 
                 objCage.BoughtState = PondState.BoughtCageMatrix[r, c];
+                //objCage.BoughtState = PondState.BoughtCageList[r][c];
                 objCage.transform.GetChild(1).gameObject.SetActive(!objCage.BoughtState);
                 objCage.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(
                     delegate { GameplayManager.instance._ConfirmBuyCage(objCage); }
                     );
+                if (objCage.BoughtState) BoughtCageList.Add(objCage);
 
                 objCage.FishId = PondState.FishInCageMatrix[r, c];
+                //objCage.FishId = PondState.FishInCageList[r][c];
                 if (objCage.BoughtState && objCage.FishId != 0)
                 {
                     var objFish = Instantiate(Fish, objCage.transform);

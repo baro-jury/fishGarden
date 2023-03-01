@@ -1,9 +1,9 @@
 using DG.Tweening;
 using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -29,6 +29,7 @@ public class GameplayManager : MonoBehaviour
     void Awake()
     {
         _MakeInstance();
+        Screen.SetResolution(1600, 900, false);
     }
 
     // Start is called before the first frame update
@@ -37,7 +38,8 @@ public class GameplayManager : MonoBehaviour
         txtLevel.text = "Lv." + PlayerPrefsManager.instance._GetCurrentLevel();
         txtCoin.text = PlayerPrefsManager.instance._GetCoinsInPossession() + "";
         pnBuyCage.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(
-            delegate {
+            delegate
+            {
                 PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
                 pnBuyCage.transform.GetChild(0).GetComponent<RectTransform>().DOScale(Vector3.zero, .25f).SetEase(Ease.InOutQuad)
                 .SetUpdate(true).OnComplete(() =>
@@ -50,10 +52,15 @@ public class GameplayManager : MonoBehaviour
 
     public void _SavePondState()
     {
+        string savePath = Application.dataPath + "/Resources/cageStateInPond.json";
+
         string json = JsonConvert.SerializeObject(PondController.PondState);
-        File.Delete(Application.dataPath + "/Resources/cageStateInPond.json");
-        File.WriteAllText(Application.dataPath + "/Resources/cageStateInPond.json", json);
+        PlayerPrefsManager.instance._SetCageState(json);
+        //File.WriteAllText(savePath, json);
+        //File.OpenRead(savePath);
+
         Debug.Log("Game saved");
+
     }
 
     private void OnApplicationQuit()
@@ -87,13 +94,13 @@ public class GameplayManager : MonoBehaviour
                 cage.transform.GetChild(1).gameObject.SetActive(false);
                 cage.BoughtState = true;
                 PondController.PondState.BoughtCageMatrix[cage.RowIndex, cage.ColumnIndex] = true;
-                _SavePondState();
+                //PondController.PondState.BoughtCageList[cage.RowIndex][cage.ColumnIndex] = true;
             });
         }
     }
 
     public void _Decor()
     {
-        
+
     }
 }

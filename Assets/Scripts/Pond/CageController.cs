@@ -17,9 +17,9 @@ public class CageController : MonoBehaviour
 
     }
 
-    public CageController((int, int) id, int rowIndex, int columnIndex, int height, int width, bool boughtState, int fishId)
+    public CageController(int rowIndex, int columnIndex, int height, int width, bool boughtState, int fishId)
     {
-        Id = id;
+        Id = (rowIndex, columnIndex);
         RowIndex = rowIndex;
         ColumnIndex = columnIndex;
         Height = height;

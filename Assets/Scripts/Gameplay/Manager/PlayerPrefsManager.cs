@@ -12,6 +12,7 @@ public class PlayerPrefsManager : MonoBehaviour
     private const string LEVEL = "Level";
     private const string EXP = "Experience";
     private const string COINS = "Coins";
+    private const string CAGE_STATE = "Cage state in pond";
 
     void _MakeSingleInstance()
     {
@@ -33,6 +34,7 @@ public class PlayerPrefsManager : MonoBehaviour
             PlayerPrefs.SetInt(LEVEL, 1);
             PlayerPrefs.SetInt(EXP, 0);
             PlayerPrefs.SetInt(COINS, 0);
+            PlayerPrefs.SetString(CAGE_STATE, "");
             PlayerPrefs.SetInt("_CheckFirstTimePlayGame", 0);
         }
     }
@@ -41,7 +43,8 @@ public class PlayerPrefsManager : MonoBehaviour
     {
         _MakeSingleInstance();
         _CheckFirstTimePlayGame();
-        //_SetCoinsInPossession(9999999, true);
+        //_SetCoinsInPossession(9999, true);
+        _SetCurrentLevel(5);
     }
 
     public int _GetCurrentLevel()
@@ -79,5 +82,14 @@ public class PlayerPrefsManager : MonoBehaviour
             PlayerPrefs.SetInt(COINS, 0);
     }
 
-    
+    public string _GetCageState()
+    {
+        return PlayerPrefs.GetString(CAGE_STATE);
+    }
+
+    public void _SetCageState(string cageState)
+    {
+        PlayerPrefs.SetString(CAGE_STATE, cageState);
+    }
+
 }
