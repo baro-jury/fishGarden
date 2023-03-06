@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,10 +15,13 @@ public class PondController : MonoBehaviour
 
     public static PondController instance;
     public static PondState PondState;
-    public static List<Transform> CageList = new List<Transform>();
+    public static List<CageController> CageList = new List<CageController>();
     public static List<CageController> BoughtCageList = new List<CageController>();
-    public static float dirtyTimeStamp = 0;
+    public static List<FishController> FishInCageList = new List<FishController>();
+    public Transform hideInteractionAnchor, showInteractionAnchor;
+    public int dirtyTimeStampBySeconds = 300;
 
+    private float _timeToDirty;
     private int _row = 4, _column = 8;
 
     [SerializeField]
@@ -39,21 +43,40 @@ public class PondController : MonoBehaviour
         _LoadPondState();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
-
         _GenerateCages();
+        _timeToDirty = 0;
+        showInteractionAnchor = GameObject.Find("ShowAnchor").transform;
     }
-    private void Load()
+
+    void Update()
     {
-        string arrayString = PlayerPrefs.GetString("Array2D");
-        int[,] loadedArray = JsonUtility.FromJson<int[,]>(arrayString);
-        // Do something with the loaded array...
+        if (_timeToDirty < dirtyTimeStampBySeconds)
+        {
+            _timeToDirty += Time.deltaTime;
+        }
+        else
+        {
+            _DirtyTheCage();
+            _timeToDirty = 0;
+        }
     }
+
+    void _DirtyTheCage()
+    {
+        List<CageController> temp = BoughtCageList.FindAll(x => x.DirtyState == false && x.FishId != 0);
+        if (temp.Count != 0)
+        {
+            int index = UnityEngine.Random.Range(0, temp.Count);
+            temp[index].DirtyState = true;
+            temp[index].transform.GetChild(0).gameObject.SetActive(true);
+            PondState.DirtyCageMatrix[temp[index].RowIndex, temp[index].ColumnIndex] = true;
+        }
+    }
+
     void _LoadPondState()
     {
-        //string json = (Resources.Load("cageStateInPond") as TextAsset).text;
         string json = PlayerPrefsManager.instance._GetCageState();
         if (json == null || json == "")
         {
@@ -85,33 +108,44 @@ public class PondController : MonoBehaviour
             {
                 Vector3 tilePos = _ConvertMatrixIndexToLocalPos(c, r, pondWidth, pondHeight, cageWidth, cageHeight);
                 var objCage = Instantiate(Cage, tilePos / 40, Quaternion.identity, gameObject.transform);
+
+                objCage.transform.GetComponent<Button>().onClick.AddListener(
+                    delegate { GameplayManager.instance._InteractInCage(objCage); }
+                    );
+
                 objCage.RowIndex = r;
                 objCage.ColumnIndex = c;
 
                 objCage.BoughtState = PondState.BoughtCageMatrix[r, c];
-                //objCage.BoughtState = PondState.BoughtCageList[r][c];
-                objCage.transform.GetChild(1).gameObject.SetActive(!objCage.BoughtState);
                 objCage.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(
                     delegate { GameplayManager.instance._ConfirmBuyCage(objCage); }
                     );
-                if (objCage.BoughtState) BoughtCageList.Add(objCage);
+                objCage.transform.GetChild(1).gameObject.SetActive(!objCage.BoughtState);
+                if (objCage.BoughtState)
+                {
+                    BoughtCageList.Add(objCage);
+                }
+
+                objCage.DirtyState = PondState.DirtyCageMatrix[r, c];
+                objCage.transform.GetChild(0).gameObject.SetActive(objCage.DirtyState);
 
                 objCage.FishId = PondState.FishInCageMatrix[r, c];
-                //objCage.FishId = PondState.FishInCageList[r][c];
                 if (objCage.BoughtState && objCage.FishId != 0)
                 {
                     var objFish = Instantiate(Fish, objCage.transform);
-                    objFish.Id = objCage.FishId;
-                    objFish.transform.GetComponent<Image>().sprite = SpriteFishController.spritesDict[objFish.Id];
+                    objFish.Type = objCage.FishId;
+                    objFish.transform.GetComponent<Image>().sprite = SpriteFishController.spritesDict[objFish.Type];
+                    FishInCageList.Add(objFish);
                 }
 
                 objCage.name = objCage.GetComponent<CageController>().RowIndex.ToString() + " - " + objCage.GetComponent<CageController>().ColumnIndex.ToString();
                 objCage.transform.localPosition = tilePos;
-                CageList.Add(objCage.transform);
+                CageList.Add(objCage);
             }
         }
 
         GameplayManager.instance.pnBuyCage.transform.SetAsLastSibling();
+        GameplayManager.instance.pnInteractInCage.transform.SetAsLastSibling();
     }
 
     (int, int) _ConvertPositionToMatrixIndex(float x, float y, float pondWidth, float pondHeight, float cageWidth, float cageHeight)

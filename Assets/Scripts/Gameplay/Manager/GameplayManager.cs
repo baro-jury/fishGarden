@@ -14,8 +14,7 @@ public class GameplayManager : MonoBehaviour
     public static GameplayManager instance;
 
     public AudioClip clickClip, closeClip;
-    public Sprite cleanCage, dirtyCage;
-    public GameObject pnBuyCage;
+    public Transform pnBuyCage, pnInteractInCage;
     public Text txtLevel, txtCoin;
 
     void _MakeInstance()
@@ -32,51 +31,58 @@ public class GameplayManager : MonoBehaviour
         Screen.SetResolution(1600, 900, false);
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         txtLevel.text = "Lv." + PlayerPrefsManager.instance._GetCurrentLevel();
         txtCoin.text = PlayerPrefsManager.instance._GetCoinsInPossession() + "";
-        pnBuyCage.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(
+        _BindingAction();
+    }
+    void _BindingAction()
+    {
+        pnBuyCage.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener( //btNo
             delegate
             {
                 PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
                 pnBuyCage.transform.GetChild(0).GetComponent<RectTransform>().DOScale(Vector3.zero, .25f).SetEase(Ease.InOutQuad)
                 .SetUpdate(true).OnComplete(() =>
-                    {
-                        pnBuyCage.SetActive(false); //panel
-                    });
+                {
+                    pnBuyCage.gameObject.SetActive(false); //panel
+                });
+            }
+            );
+        pnInteractInCage.transform.GetComponent<Button>().onClick.AddListener(
+            delegate
+            {
+                Debug.Log("pn click close");
+                PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
+                _EndInteraction();
             }
             );
     }
 
-    public void _SavePondState()
-    {
-        string savePath = Application.dataPath + "/Resources/cageStateInPond.json";
-
-        string json = JsonConvert.SerializeObject(PondController.PondState);
-        PlayerPrefsManager.instance._SetCageState(json);
-        //File.WriteAllText(savePath, json);
-        //File.OpenRead(savePath);
-
-        Debug.Log("Game saved");
-
-    }
-
+    
     private void OnApplicationQuit()
     {
         _SavePondState();
     }
+    void _SavePondState()
+    {
+        string json = JsonConvert.SerializeObject(PondController.PondState);
+        PlayerPrefsManager.instance._SetCageState(json);
 
+        Debug.Log("Game saved");
+    }
+
+    #region Cage
     public void _ConfirmBuyCage(CageController cage)
     {
         PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
-        pnBuyCage.SetActive(true);
-        pnBuyCage.transform.GetChild(0).GetComponent<RectTransform>().DOScale(Vector3.one, .25f)
+        pnBuyCage.gameObject.SetActive(true);
+        pnBuyCage.GetChild(0).GetComponent<RectTransform>().DOScale(Vector3.one, .25f)
             .SetEase(Ease.InOutQuad).SetUpdate(true);
 
-        pnBuyCage.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.RemoveAllListeners();
-        pnBuyCage.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick
+        pnBuyCage.GetChild(0).GetChild(2).GetComponent<Button>().onClick.RemoveAllListeners();
+        pnBuyCage.GetChild(0).GetChild(2).GetComponent<Button>().onClick
             .AddListener(delegate { _BuyCage(cage); });
     }
 
@@ -87,10 +93,10 @@ public class GameplayManager : MonoBehaviour
         {
             PlayerPrefsManager.instance._SetCoinsInPossession(100, false);
             txtCoin.text = PlayerPrefsManager.instance._GetCoinsInPossession() + "";
-            pnBuyCage.transform.GetChild(0).GetComponent<RectTransform>().DOScale(Vector3.zero, .25f).SetEase(Ease.InOutQuad).SetUpdate(true) //gameObject: form
+            pnBuyCage.GetChild(0).GetComponent<RectTransform>().DOScale(Vector3.zero, .25f).SetEase(Ease.InOutQuad).SetUpdate(true)
             .OnComplete(() =>
             {
-                pnBuyCage.SetActive(false); //panel
+                pnBuyCage.gameObject.SetActive(false);
                 cage.transform.GetChild(1).gameObject.SetActive(false);
                 cage.BoughtState = true;
                 PondController.PondState.BoughtCageMatrix[cage.RowIndex, cage.ColumnIndex] = true;
@@ -99,8 +105,52 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public void _Decor()
+    public void _InteractInCage(CageController cage)
     {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        pnInteractInCage.gameObject.SetActive(true);
+        pnInteractInCage.GetChild(0).GetComponent<RectTransform>().DOMove(
+            PondController.instance.showInteractionAnchor.position, .25f).SetEase(Ease.InOutQuad).SetUpdate(true);
 
+        pnInteractInCage.GetChild(0).GetChild(0).GetChild(0).GetComponent<Button>().onClick.RemoveAllListeners();
+        pnInteractInCage.GetChild(0).GetChild(0).GetChild(0).GetComponent<Button>().onClick
+            .AddListener(delegate { _SellFishInCage(cage); });
+        pnInteractInCage.GetChild(0).GetChild(0).GetChild(1).GetComponent<Button>().onClick.RemoveAllListeners();
+        pnInteractInCage.GetChild(0).GetChild(0).GetChild(1).GetComponent<Button>().onClick
+            .AddListener(delegate { _CleanCage(cage); });
+    }
+
+    void _SellFishInCage(CageController cage)
+    {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+    }
+
+    void _CleanCage(CageController cage)
+    {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        cage.transform.GetChild(0).gameObject.SetActive(false);
+        cage.DirtyState = false;
+        PondController.PondState.DirtyCageMatrix[cage.RowIndex, cage.ColumnIndex] = false;
+        _GetExp(10);
+        _EndInteraction();
+    }
+
+    void _EndInteraction()
+    {
+        //pnInteractInCage.GetComponent<Image>().DOFade(0, .25f).SetEase(Ease.InOutQuad).SetUpdate(true);
+        pnInteractInCage.GetChild(0).GetComponent<RectTransform>().DOMove(
+            PondController.instance.hideInteractionAnchor.position, .25f).SetEase(Ease.InOutQuad).SetUpdate(true) //gameObject: form
+            .OnComplete(() =>
+            {
+                pnInteractInCage.gameObject.SetActive(false); //panel
+            });
+    }
+
+    #endregion
+
+    public void _GetExp(float exp)
+    {
+        ExpController.instance.expEarned = exp;
+        ExpController.instance._EarnExp();
     }
 }

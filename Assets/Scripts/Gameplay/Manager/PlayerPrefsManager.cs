@@ -32,7 +32,7 @@ public class PlayerPrefsManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("_CheckFirstTimePlayGame"))
         {
             PlayerPrefs.SetInt(LEVEL, 1);
-            PlayerPrefs.SetInt(EXP, 0);
+            PlayerPrefs.SetFloat(EXP, 0);
             PlayerPrefs.SetInt(COINS, 0);
             PlayerPrefs.SetString(CAGE_STATE, "");
             PlayerPrefs.SetInt("_CheckFirstTimePlayGame", 0);
@@ -44,7 +44,7 @@ public class PlayerPrefsManager : MonoBehaviour
         _MakeSingleInstance();
         _CheckFirstTimePlayGame();
         //_SetCoinsInPossession(9999, true);
-        _SetCurrentLevel(5);
+        //_SetCurrentLevel(5);
     }
 
     public int _GetCurrentLevel()
@@ -57,14 +57,14 @@ public class PlayerPrefsManager : MonoBehaviour
         PlayerPrefs.SetInt(LEVEL, level);
     }
 
-    public int _GetCurrentExp()
+    public float _GetCurrentExp()
     {
-        return PlayerPrefs.GetInt(EXP);
+        return PlayerPrefs.GetFloat(EXP);
     }
 
-    public void _SetCurrentExp(int exp)
+    public void _SetCurrentExp(float exp)
     {
-        PlayerPrefs.SetInt(EXP, exp);
+        PlayerPrefs.SetFloat(EXP, exp);
     }
 
     public int _GetCoinsInPossession()

@@ -10,6 +10,7 @@ public class CageController : MonoBehaviour
     public int Height { get; set; }
     public int Width { get; set; }
     public bool BoughtState { get; set; }
+    public bool DirtyState { get; set; }
     public int FishId { get; set; }
 
     public CageController()
@@ -17,7 +18,7 @@ public class CageController : MonoBehaviour
 
     }
 
-    public CageController(int rowIndex, int columnIndex, int height, int width, bool boughtState, int fishId)
+    public CageController(int rowIndex, int columnIndex, int height, int width, bool boughtState, bool dirtyState, int fishId)
     {
         Id = (rowIndex, columnIndex);
         RowIndex = rowIndex;
@@ -25,6 +26,7 @@ public class CageController : MonoBehaviour
         Height = height;
         Width = width;
         BoughtState = boughtState;
+        DirtyState = dirtyState;
         FishId = fishId;
     }
 }

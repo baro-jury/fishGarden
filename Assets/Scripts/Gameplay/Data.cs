@@ -28,6 +28,13 @@ public class PondState
             {false, false, false, false, false, false, false ,false},
             {false, false, false, false, false, false, false ,false}
         };
+    private bool[,] dirtyCageMatrix =
+        {
+            {true, false, false, false, false, false, false ,false},
+            {false, false, false, false, false, false, false ,false},
+            {false, false, false, false, false, false, false ,false},
+            {false, false, false, false, false, false, false ,false}
+        };
     private int[,] fishInCageMatrix =
         {
             {1, 0, 0, 0, 0, 0, 0, 0},
@@ -36,10 +43,8 @@ public class PondState
             {0, 0, 0, 0, 0, 0, 0, 0}
         };
 
-    //public List<List<bool>> BoughtCageList { get { return boughtCageList; } set { boughtCageList = value; } }
-    //public List<List<int>> FishInCageList { get { return fishInCageList; } set { fishInCageList = value; } }
-
     public bool[,] BoughtCageMatrix { get { return boughtCageMatrix; } set { boughtCageMatrix = value; } }
+    public bool[,] DirtyCageMatrix { get { return dirtyCageMatrix; } set { dirtyCageMatrix = value; } }
     public int[,] FishInCageMatrix { get { return fishInCageMatrix; } set { fishInCageMatrix = value; } }
 
     public PondState()
@@ -47,18 +52,12 @@ public class PondState
 
     }
 
-    //public PondState(List<List<bool>> boughtCageList, List<List<int>> fishInCageList)
-    //{
-    //    BoughtCageList = boughtCageList;
-    //    FishInCageList = fishInCageList;
-    //}
-
-    public PondState(bool[,] boughtCageMatrix, int[,] fishInCageMatrix)
+    public PondState(bool[,] boughtCageMatrix, bool[,] dirtyCageMatrix, int[,] fishInCageMatrix)
     {
         BoughtCageMatrix = boughtCageMatrix;
+        DirtyCageMatrix = dirtyCageMatrix;
         FishInCageMatrix = fishInCageMatrix;
     }
-
 
 }
 
