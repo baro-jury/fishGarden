@@ -55,7 +55,6 @@ public class ExpController : MonoBehaviour
         {
             if (expSlider.value < PlayerPrefsManager.instance._GetCurrentExp())
             {
-                //expSlider.value += 7 * Time.deltaTime;
                 expSlider.value += 20 * Time.deltaTime;
             }
             else if (expSlider.value > PlayerPrefsManager.instance._GetCurrentExp())

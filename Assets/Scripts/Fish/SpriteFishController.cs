@@ -30,7 +30,7 @@ public class SpriteFishController : MonoBehaviour
     void _CreateDictionary(List<Sprite> list)
     {
         Dictionary<int, Sprite> temp = new Dictionary<int, Sprite>();
-        temp.Add(0, blank);
+        //temp.Add(0, blank);
         foreach (Sprite sprite in list)
         {
             temp.Add(idElement, sprite);

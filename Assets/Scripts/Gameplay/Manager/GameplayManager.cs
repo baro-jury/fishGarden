@@ -14,7 +14,8 @@ public class GameplayManager : MonoBehaviour
     public static GameplayManager instance;
 
     public AudioClip clickClip, closeClip;
-    public Transform pnBuyCage, pnInteractInCage;
+    public Transform pnBuyCage, pnInteractInCage, pnInventoryShop, UIInvetoryShop;
+    public Transform hideBoardAnchor, showBoardAnchor;
     public Text txtLevel, txtCoin;
 
     void _MakeInstance()
@@ -35,6 +36,8 @@ public class GameplayManager : MonoBehaviour
     {
         txtLevel.text = "Lv." + PlayerPrefsManager.instance._GetCurrentLevel();
         txtCoin.text = PlayerPrefsManager.instance._GetCoinsInPossession() + "";
+        //txtLevel.text = "Lv.";
+        //txtCoin.text = "";
         _BindingAction();
     }
     void _BindingAction()
@@ -53,14 +56,13 @@ public class GameplayManager : MonoBehaviour
         pnInteractInCage.transform.GetComponent<Button>().onClick.AddListener(
             delegate
             {
-                Debug.Log("pn click close");
                 PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
-                _EndInteraction();
+                _EndInteractionInCage();
             }
             );
     }
 
-    
+
     private void OnApplicationQuit()
     {
         _SavePondState();
@@ -123,21 +125,27 @@ public class GameplayManager : MonoBehaviour
     void _SellFishInCage(CageController cage)
     {
         PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        if(cage.FishId != 0)
+        {
+
+        }
     }
 
     void _CleanCage(CageController cage)
     {
         PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
-        cage.transform.GetChild(0).gameObject.SetActive(false);
-        cage.DirtyState = false;
-        PondController.PondState.DirtyCageMatrix[cage.RowIndex, cage.ColumnIndex] = false;
-        _GetExp(10);
-        _EndInteraction();
+        if (cage.DirtyState)
+        {
+            cage.transform.GetChild(0).gameObject.SetActive(false);
+            cage.DirtyState = false;
+            PondController.PondState.DirtyCageMatrix[cage.RowIndex, cage.ColumnIndex] = false;
+            _GetExp(10);
+        }
+        _EndInteractionInCage();
     }
 
-    void _EndInteraction()
+    void _EndInteractionInCage()
     {
-        //pnInteractInCage.GetComponent<Image>().DOFade(0, .25f).SetEase(Ease.InOutQuad).SetUpdate(true);
         pnInteractInCage.GetChild(0).GetComponent<RectTransform>().DOMove(
             PondController.instance.hideInteractionAnchor.position, .25f).SetEase(Ease.InOutQuad).SetUpdate(true) //gameObject: form
             .OnComplete(() =>
@@ -147,6 +155,64 @@ public class GameplayManager : MonoBehaviour
     }
 
     #endregion
+
+    #region Inventory&Shop
+    void _ShowTheBoard(int childIndex)
+    {
+        UIInvetoryShop.GetChild(childIndex).GetChild(0).gameObject.SetActive(true);
+
+        pnInventoryShop.gameObject.SetActive(true);
+        pnInventoryShop.transform.GetComponent<Button>().onClick.RemoveAllListeners();
+        pnInventoryShop.transform.GetComponent<Button>().onClick.AddListener(
+            delegate
+            {
+                PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
+                _HideTheBoard(childIndex);
+            }
+        );
+        pnInventoryShop.GetChild(childIndex).gameObject.SetActive(true);
+        pnInventoryShop.GetChild(childIndex).GetComponent<RectTransform>()
+            .DOMove(showBoardAnchor.position, .25f).SetEase(Ease.InOutQuad).SetUpdate(true);
+    }
+
+    void _HideTheBoard(int childIndex)
+    {
+        UIInvetoryShop.GetChild(childIndex).GetChild(0).gameObject.SetActive(false);
+        pnInventoryShop.GetChild(childIndex).GetComponent<RectTransform>()
+            .DOMove(hideBoardAnchor.position, .25f).SetEase(Ease.InOutQuad).SetUpdate(true) //gameObject: form
+            .OnComplete(() =>
+            {
+                pnInventoryShop.GetChild(childIndex).gameObject.SetActive(false);
+                pnInventoryShop.gameObject.SetActive(false); //panel
+            });
+    }
+
+    public void _ShowInventory()
+    {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        _ShowTheBoard(0);
+    }
+
+    public void _ShowFishShop()
+    {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        _ShowTheBoard(1);
+    }
+
+    public void _ShowFoodShop()
+    {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        _ShowTheBoard(2);
+    }
+
+    public void _ShowDecorationShop()
+    {
+        PlayerPrefsManager.instance.audioSource.PlayOneShot(clickClip);
+        _ShowTheBoard(3);
+    }
+
+    #endregion
+
 
     public void _GetExp(float exp)
     {

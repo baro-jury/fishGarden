@@ -21,7 +21,7 @@ public class CloseButton : MonoBehaviour
             });
     }
 
-    public void _ClosePanelFromLeftSide()
+    public void _CloseInteraction()
     {
         PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
         transform.parent.GetComponent<RectTransform>().DOMove(
@@ -32,8 +32,14 @@ public class CloseButton : MonoBehaviour
             });
     }
 
-    public void _ClosePanelFromBottom() 
+    public void _CloseBoard() 
     {
         PlayerPrefsManager.instance.audioSource.PlayOneShot(closeClip);
+        transform.parent.GetComponent<RectTransform>().DOMove(
+            GameplayManager.instance.hideBoardAnchor.position, .25f).SetEase(Ease.InOutQuad).SetUpdate(true) //gameObject: form
+            .OnComplete(() =>
+            {
+                transform.parent.parent.gameObject.SetActive(false); //panel
+            });
     }
 }

@@ -15,6 +15,7 @@ public class PondController : MonoBehaviour
 
     public static PondController instance;
     public static PondState PondState;
+    public static FishData FishData;
     public static List<CageController> CageList = new List<CageController>();
     public static List<CageController> BoughtCageList = new List<CageController>();
     public static List<FishController> FishInCageList = new List<FishController>();
@@ -45,9 +46,9 @@ public class PondController : MonoBehaviour
 
     void Start()
     {
+        FishData = new FishData();
         _GenerateCages();
         _timeToDirty = 0;
-        showInteractionAnchor = GameObject.Find("ShowAnchor").transform;
     }
 
     void Update()
@@ -63,18 +64,6 @@ public class PondController : MonoBehaviour
         }
     }
 
-    void _DirtyTheCage()
-    {
-        List<CageController> temp = BoughtCageList.FindAll(x => x.DirtyState == false && x.FishId != 0);
-        if (temp.Count != 0)
-        {
-            int index = UnityEngine.Random.Range(0, temp.Count);
-            temp[index].DirtyState = true;
-            temp[index].transform.GetChild(0).gameObject.SetActive(true);
-            PondState.DirtyCageMatrix[temp[index].RowIndex, temp[index].ColumnIndex] = true;
-        }
-    }
-
     void _LoadPondState()
     {
         string json = PlayerPrefsManager.instance._GetCageState();
@@ -85,6 +74,18 @@ public class PondController : MonoBehaviour
         else
         {
             PondState = JsonConvert.DeserializeObject<PondState>(json);
+        }
+    }
+
+    void _DirtyTheCage()
+    {
+        List<CageController> temp = BoughtCageList.FindAll(x => x.DirtyState == false && x.FishId != 0);
+        if (temp.Count != 0)
+        {
+            int index = UnityEngine.Random.Range(0, temp.Count);
+            temp[index].DirtyState = true;
+            temp[index].transform.GetChild(0).gameObject.SetActive(true);
+            PondState.DirtyCageMatrix[temp[index].RowIndex, temp[index].ColumnIndex] = true;
         }
     }
 
@@ -133,8 +134,18 @@ public class PondController : MonoBehaviour
                 if (objCage.BoughtState && objCage.FishId != 0)
                 {
                     var objFish = Instantiate(Fish, objCage.transform);
-                    objFish.Type = objCage.FishId;
+                    Fish temp = FishData.FishList.Find(x => x.Type == objCage.FishId);
+                    objFish.Type = temp.Type;
+                    objFish.Name = temp.Name;
+                    objFish.TimesEatToGrowUp = temp.TimesEatToGrowUp;
+
                     objFish.transform.GetComponent<Image>().sprite = SpriteFishController.spritesDict[objFish.Type];
+
+                    objFish.RowIndex = objCage.RowIndex;
+                    objFish.ColumnIndex= objCage.ColumnIndex;
+                    objFish.HungryState = false;
+                    objFish.CurrentStack = 0;
+                    objFish.CurrentValue = temp.PriceSellMin;
                     FishInCageList.Add(objFish);
                 }
 

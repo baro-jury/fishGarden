@@ -1,7 +1,16 @@
 fileFormatVersion: 2
 guid: 0ca8d8a66ca2b2340b1de3b63ebbf3ee
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 1716428949514939524
+    second: BOX INFO_0
+  - first:
+      213: -342040929488249183
+    second: BOX INFO_1
+  - first:
+      213: 3002100520169111885
+    second: BOX INFO_2
   externalObjects: {}
   serializedVersion: 12
   mipmaps:
@@ -41,7 +50,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -92,17 +101,80 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 65
     textureCompression: 1
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: BOX INFO_0
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 147
+        width: 599
+        height: 670
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 48ce80a190bf1d710800000000000000
+      internalID: 1716428949514939524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BOX INFO_1
+      rect:
+        serializedVersion: 2
+        x: 813
+        y: 69
+        width: 736
+        height: 780
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1ae553b3693d04bf0800000000000000
+      internalID: -342040929488249183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BOX INFO_2
+      rect:
+        serializedVersion: 2
+        x: 1651
+        y: 620
+        width: 235
+        height: 256
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4102bc648a99a920800000000000000
+      internalID: 3002100520169111885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
